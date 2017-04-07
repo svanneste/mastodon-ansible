@@ -1,0 +1,18 @@
+
+# ansible_host everywhere because proper DNS is work
+
+main ansible_host=... munin_node_host=127.0.0.1
+
+[sidekiq]
+sidekiq01 ansible_host=...
+
+[app]
+app01 ansible_host=...
+app02 ansible_host=..
+
+[monitored:children]
+app
+sidekiq
+[monitored]
+main
+

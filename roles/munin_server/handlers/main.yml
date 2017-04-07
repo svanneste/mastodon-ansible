@@ -1,0 +1,14 @@
+---
+
+- name: reload supervisor
+  service: name=supervisor state=restarted
+
+- name: restart fcgi
+  command: "supervisorctl restart munin-html munin-graph"
+
+- name: restart nginx
+  service: name=nginx state=restarted
+
+- name: reload nginx
+  service: name=nginx state=reloaded
+

@@ -1,11 +1,28 @@
 ---
 
+# Common stuff, run in parallell
 - hosts: sidekiq, app
   roles:
     - geerlingguy.nodejs
-    - mastodon
+    - munin_node
 
-#- hosts: main
-#  roles:
-#    - minio
+    # Prepares deps mostly, everything that doesn't depend on mastodon's repo
+    # and shouldn't change often (and can be safely ran in parallell)
+    - mastodon_base
+
+# Mastodon iteself, run only one at a time so nginx can still balance everything
+- hosts: sidekiq, app
+  roles:
+    - mastodon
+  serial: 1
+
+- hosts: main
+  roles:
+    - { role: certbot, vars: { certbot_domain: "{{munin_hostname}}" } }
+    - munin_node
+    - role: munin_server
+      vars:
+        munin_web_ssl: true  # set to false and remote certbot for the first run
+
+    #    - minio
 

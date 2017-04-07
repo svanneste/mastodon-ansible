@@ -1,0 +1,24 @@
+---
+- name: install munin-node
+  apt: pkg={{item}} state=present
+  with_items:
+  - munin-node
+  - munin-plugins-core
+  - munin-plugins-extra
+
+- name: configure munin-node
+  template: src=munin-node.conf dest=/etc/munin/munin-node.conf
+  notify: restart munin-node
+
+- name: enable munin plugin
+  file: dest=/etc/munin/plugins/{{item}} src=/usr/share/munin/plugins/{{item}} state=link
+  with_items:
+  - cpu
+  - load
+  - memory
+  - df
+  - processes
+  - uptime
+  - vmstat
+  notify: restart munin-node
+

@@ -1,0 +1,33 @@
+---
+
+- name: install munin
+  apt: pkg={{item}} state=present
+  with_items:
+  - munin
+  - supervisor
+
+# On Debian at least it's owned by root, and for obvious reasons I'm not going
+# to run some CGI as root. I guess they forgot that when they changed it from
+# cron to cgi.
+- name: fix log ownership
+  file: dest=/var/log/munin state=directory owner=munin
+
+- name: configure munin
+  template: src=munin.conf dest=/etc/munin/munin.conf
+  notify: restart fcgi
+
+- name: install supervisor config
+  template: src=supervisor_munin.conf dest=/etc/supervisor/conf.d/munin.conf
+  notify: reload supervisor
+
+- name: install nginx config
+  template: src=nginx.conf dest=/etc/nginx/sites-available/munin_server.conf
+  notify: reload nginx
+
+- name: install very cool dark theme
+  copy: src=style-new.css dest=/etc/munin/static/style-new.css
+
+- name: enable vhost
+  file: src=/etc/nginx/sites-available/munin_server.conf dest=/etc/nginx/sites-enabled/munin_server.conf state=link
+  notify: reload nginx
+

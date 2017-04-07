@@ -1,0 +1,29 @@
+---
+
+- name: install debian backports
+  apt_repository:
+    repo: deb http://ftp.debian.org/debian jessie-backports main
+    state: present
+    filename: backports
+  register: backports
+
+- name: update apt cache
+  apt: update_cache=yes
+  when: backports.changed
+
+- name: install certbot
+  apt: pkg=certbot state=present
+
+- name: create challenges dir
+  file: dest={{certbot_challenges_dir}} state=directory
+
+- name: "run certonly for {{ certbot_domain }}"
+  command: >
+    certbot certonly --agree-tos --text --noninteractive
+    --rsa-key-size {{ certbot_rsa_key_size}}
+    --webroot
+    -w {{certbot_challenges_dir}}
+    -d {{certbot_domain}}
+    {% if certbot_domains %} -d {{ certbot_domains | join(" -d ") }} {% endif %}
+
+
