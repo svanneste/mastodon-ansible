@@ -1,0 +1,25 @@
+---
+
+- name: make sur media dir exists
+  file: path={{media_path}} state=directory
+
+  #- find: paths={{media_path}}
+  #  register: dir_files
+
+  #- name: check if empty
+  #  fail:
+  #    msg: "media dir not empty"
+    #  when: dir_files.matched|int != 0
+
+  #- name: chown
+  #shell: chown root:root {{media_path}}
+  #when: dir_files.matched|int != 0
+
+- name: mount
+  mount:
+    opts: rw,timeo=15,noatime,intr
+    src: "{{media_host}}:{{media_path}}"
+    name: "{{media_path}}"
+    fstype: nfs
+    state: mounted
+

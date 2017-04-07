@@ -1,0 +1,19 @@
+[Unit]
+Description=mastodon-web
+After=network.target
+
+[Service]
+Type=simple
+User=mastodon
+WorkingDirectory=/home/mastodon/live
+Environment="RAILS_ENV=production"
+Environment="PORT=3000"
+Environment="WEB_CONCURRENCY={{mweb_c}}"
+Environment="MAX_THREADS={{mweb_t}}"
+ExecStart=/home/mastodon/.rbenv/shims/bundle exec puma -C config/puma.rb
+TimeoutSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

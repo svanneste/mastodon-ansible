@@ -1,0 +1,17 @@
+[Unit]
+Description=mastodon-sidekiq
+After=network.target
+
+[Service]
+Type=simple
+User=mastodon
+WorkingDirectory=/home/mastodon/live
+Environment="RAILS_ENV=production"
+Environment="DB_POOL={{msidekiq_pools}}"
+ExecStart=/home/mastodon/.rbenv/shims/bundle exec sidekiq -c {{msidekiq_c}} -q default -q mailers -q pull -q push
+TimeoutSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

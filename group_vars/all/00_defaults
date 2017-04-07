@@ -1,0 +1,51 @@
+
+db_lan: 
+redis_host: 
+redis_password:
+db_host: 
+db_password:
+
+app_hosts:
+
+nodejs_version: "4.x"
+
+mweb_c: 4
+mweb_t: 5
+
+msidekiq_pools: 40
+msidekiq_c: 40
+
+secrets_paperclip: 
+secrets_key: 
+secrets_otp: 
+
+mail_host: 
+mail_port: 
+mail_user: 
+mail_password: 
+mail_from: 
+
+mroles_enabled: 
+
+mroles_all:
+  - web
+  - sidekiq  # kept here to disable it
+  - sidekiq@0
+  - sidekiq@1
+  - streaming
+
+mroles_files:
+  - web
+  - sidekiq@
+  - streaming
+
+media_host: 
+media_path: /home/mastodon/live/public/system
+
+minio_dl_url: https://dl.minio.io/server/minio/release/linux-amd64/minio
+minio_data_dir: /home/minio/data/
+minio_config_dir: /home/minio/config/
+minio_bin: /usr/local/bin/minio
+minio_access_key: 
+minio_secret_key: 
+minio_listen: 127.0.0.1:9000

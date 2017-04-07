@@ -1,0 +1,141 @@
+---
+
+- name: install requirements
+  apt: name={{item}} state=latest
+  with_items:
+  - git
+  - imagemagick
+  - ffmpeg
+  - libpq-dev
+  - libxml2-dev
+  - libxslt1-dev
+  - nodejs
+  - file
+  - redis-tools
+  - postgresql-contrib
+  - build-essential
+  - libreadline-dev
+  - nfs-client
+
+- name: npm
+  npm: name={{item}} global=yes
+  with_items:
+  - yarn
+
+- name: create mastodon user
+  user:
+    name: mastodon
+    shell: /bin/bash
+
+- name: install rbenv
+  git:
+    repo: https://github.com/rbenv/rbenv.git
+    dest: /home/mastodon/.rbenv
+  become: yes
+  become_user: mastodon
+
+- name: install ruby-build
+  git: 
+    repo: https://github.com/rbenv/ruby-build.git
+    dest: /home/mastodon/.rbenv/plugins/ruby-build
+  become: yes
+  become_user: mastodon
+
+- name: env stuff
+  shell: "echo 'export PATH=\"$HOME/.rbenv/bin:$PATH\"' >> ~/.bash_profile"
+  become: yes
+  become_user: mastodon
+
+- name: install ruby
+  shell: /home/mastodon/.rbenv/bin/rbenv install -s 2.3.1
+  become: yes
+  become_user: mastodon
+
+- name: rehash
+  shell: /home/mastodon/.rbenv/bin/rbenv rehash
+  become: yes
+  become_user: mastodon
+
+- name: clone mastodon
+  git:
+    repo: https://github.com/tootsuite/mastodon.git
+    dest: /home/mastodon/live
+    update: yes
+    version: HEAD
+  become: yes
+  become_user: mastodon
+  # a107de0
+
+- name: gem install
+  gem:
+    executable: /home/mastodon/.rbenv/versions/2.3.1/bin/gem
+    name: bundler
+    user_install: no
+  become: yes
+  become_user: mastodon
+
+- name: rehash
+  shell: /home/mastodon/.rbenv/bin/rbenv rehash
+  become: yes
+  become_user: mastodon
+
+- name: bundle
+  bundler:
+    chdir: /home/mastodon/live/
+    executable: /home/mastodon/.rbenv/versions/2.3.1/bin/bundle
+    deployment_mode: yes
+    exclude_groups: development test
+  become: yes
+  become_user: mastodon
+  notify: restart all
+
+- name: yarn
+  shell: yarn install chdir=/home/mastodon/live/
+  become: yes
+  become_user: mastodon
+  tags: [app]
+
+- name: install production configuration
+  template: src=env.production dest=/home/mastodon/live/.env.production
+  become: yes
+  become_user: mastodon
+  tags: [app]
+  notify: restart all
+
+- name: run migrations
+  shell: RAILS_ENV=production /home/mastodon/.rbenv/versions/2.3.1/bin/bundle exec rails db:migrate chdir=/home/mastodon/live/
+  become: yes
+  become_user: mastodon
+  run_once: true
+  tags: [app]
+
+- name: precompile assets
+  shell: RAILS_ENV=production /home/mastodon/.rbenv/versions/2.3.1/bin/bundle exec rails assets:precompile chdir=/home/mastodon/live/
+  become: yes
+  become_user: mastodon
+  tags: [app]
+
+- include: shared-media.yml
+  when: "'web' in mroles_enabled"
+
+- name: install systemd units
+  template: src=mastodon-{{item}}.service dest=/etc/systemd/system/mastodon-{{item}}.service
+  tags: [app]
+  with_items:
+  - "{{ mroles_files }}"
+  notify: restart all
+
+- name: enable units
+  tags: [app]
+  systemd: name=mastodon-{{item}} enabled=yes state=started
+  with_items:
+  - "{{ mroles_enabled }}"
+
+- name: disable unused units
+  tags: [app]
+  systemd: name=mastodon-{{item}} enabled=no state=stopped
+  when: item not in mroles_enabled
+  with_items:
+  - "{{ mroles_all }}"
+
+

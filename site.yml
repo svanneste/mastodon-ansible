@@ -1,0 +1,11 @@
+---
+
+- hosts: sidekiq, app
+  roles:
+    - geerlingguy.nodejs
+    - mastodon
+
+#- hosts: main
+#  roles:
+#    - minio
+
