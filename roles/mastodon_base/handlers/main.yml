@@ -1,0 +1,8 @@
+---
+
+- name: reload pgbouncer
+  systemd: name=pgbouncer state=reloaded
+
+- name: start pgbouncer
+  systemd: name=pgbouncer state=restarted
+

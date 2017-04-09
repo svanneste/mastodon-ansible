@@ -17,10 +17,32 @@
   - libreadline-dev
   - nfs-client
 
+- name: install pgbouncer
+  apt: name=pgbouncer state=latest
+  when: pgbouncer_use
+
 - name: npm
   npm: name={{item}} global=yes
   with_items:
   - yarn
+
+- name: configure pgbouncer
+  template: src=pgbouncer.ini dest=/etc/pgbouncer/pgbouncer.ini
+  when: pgbouncer_use
+  notify: reload pgbouncer
+
+- name: configure pgbouncer users
+  template: src=userlist.txt dest=/etc/pgbouncer/userlist.txt
+  when: pgbouncer_use
+  notify: reload pgbouncer
+
+- name: enable pgbouncer
+  lineinfile:
+    dest: /etc/default/pgbouncer
+    regexp: '^START='
+    line: 'START=1'
+  notify: start pgbouncer
+  when: pgbouncer_use
 
 - name: create mastodon user
   user:

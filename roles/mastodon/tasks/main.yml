@@ -2,15 +2,27 @@
 
 # Everything done before that is in mastodon_base
 
+# Until there's a proper env var for the next fix
+- name: horrible fix please ignore
+  shell: git checkout config/database.yml chdir=/home/mastodon/live/
+  when: pgbouncer_use
+
 - name: clone mastodon
   git:
     repo: https://github.com/tootsuite/mastodon.git
     dest: /home/mastodon/live
     update: yes
-    version: HEAD
+    version: 470eb0042ea99e0632ccc62a0b7c01e910f70491
   become: yes
   become_user: mastodon
-  # a107de0
+  notify: restart all
+
+- name: quick fix please ignore
+  lineinfile:
+    dest: /home/mastodon/live/config/database.yml
+    insertafter: '^  port: '
+    line: '  prepared_statements: false'
+  when: pgbouncer_use
 
 - name: gem install
   gem:

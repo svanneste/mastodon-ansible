@@ -26,6 +26,10 @@ mail_user:
 mail_password: 
 mail_from: 
 
+# Enable/disable using pgbouncer on sidekiq and app servers
+# (doesn't require changing db_*, mastodon will connect to pgbouncer instead)
+pgbouncer_use_sidekiq: true
+pgbouncer_use_web: true
 
 munin_hostname: "munin.{{domain}}"
 
@@ -40,8 +44,12 @@ minio_secret_key:
 minio_listen: 127.0.0.1:9000
 
 
+
 ########## Don't change stuff under this
 # it's mostly defaults and constants
+
+pgbouncer_port: 6432
+pgbouncer_use: false
 
 nodejs_version: "4.x"
 
@@ -54,6 +62,8 @@ mroles_all:
   - sidekiq  # kept here to disable it
   - sidekiq@0
   - sidekiq@1
+  - sidekiq@2
+  - sidekiq@3
   - streaming
 
 mroles_files:
