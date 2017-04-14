@@ -1,0 +1,17 @@
+[Unit]
+Description=minio
+After=network.target
+
+[Service]
+Type=simple
+User=minio
+WorkingDirectory=/home/minio/
+Environment="MINIO_ACCESS_KEY={{minio_access_key}}"
+Environment="MINIO_SECRET_KEY={{minio_secret_key}}"
+ExecStart={{minio_bin}} server --address {{minio_listen}} --config-dir {{minio_config_dir}} {{minio_data_dir}}
+TimeoutSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

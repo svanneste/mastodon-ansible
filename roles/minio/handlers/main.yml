@@ -1,0 +1,7 @@
+---
+- name: restart
+  systemd: name=minio.service state=restarted daemon_reload=yes
+
+- name: reload nginx
+  service: name=nginx state=reloaded
+

@@ -1,0 +1,35 @@
+---
+
+- name: create minio user
+  user:
+    name: minio
+    shell: /bin/bash
+
+- name: download latest release
+  get_url: url={{minio_dl_url}} dest=/usr/local/bin/minio mode=755
+  notify: restart
+
+- name: create config directory
+  file: dest={{minio_config_dir}} state=directory owner=minio
+  notify: restart
+
+- name: create data directory
+  file: dest={{minio_data_dir}} state=directory owner=minio
+  notify: restart
+
+- name: install systemd service
+  template: src=minio.service dest=/etc/systemd/system/minio.service
+  notify: restart
+
+- name: enable unit
+  systemd: name=minio.service enabled=yes state=started
+
+- name: install nginx config
+  template: src=nginx.conf dest=/etc/nginx/sites-available/minio.conf
+  notify: reload nginx
+
+- name: enable vhost
+  file: src=/etc/nginx/sites-available/minio.conf dest=/etc/nginx/sites-enabled/minio.conf state=link
+  notify: reload nginx
+
+

@@ -1,2 +1,2 @@
 mroles_enabled: [ 'web', 'streaming' ]
-pgbouncer_use: {{pgbouncer_use_web}}
+pgbouncer_use: "{{pgbouncer_use_web}}"

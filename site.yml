@@ -24,5 +24,9 @@
       vars:
         munin_web_ssl: true  # set to false and remote certbot for the first run
 
-    #    - minio
-
+- hosts: minio
+  roles:
+    - role: certbot
+      vars: { certbot_domain: "{{minio_public_host}}" }
+      when: minio_ssl
+    - role: minio

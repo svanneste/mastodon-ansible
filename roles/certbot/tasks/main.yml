@@ -12,7 +12,7 @@
   when: backports.changed
 
 - name: install certbot
-  apt: pkg=certbot state=present
+  apt: pkg=certbot state=present default_release=jessie-backports
 
 - name: create challenges dir
   file: dest={{certbot_challenges_dir}} state=directory
@@ -21,6 +21,7 @@
   command: >
     certbot certonly --agree-tos --text --noninteractive
     --rsa-key-size {{ certbot_rsa_key_size}}
+    --email {{certbot_admin_email}}
     --webroot
     -w {{certbot_challenges_dir}}
     -d {{certbot_domain}}

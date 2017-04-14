@@ -33,15 +33,18 @@ pgbouncer_use_web: true
 
 munin_hostname: "munin.{{domain}}"
 
+# That's used for the NFS, I just keep it there for completeness.
+# I recommend using Minio/S3 instead.
+use_nfs_media: false
 media_host: 
 media_path: /home/mastodon/live/public/system
-minio_dl_url: https://dl.minio.io/server/minio/release/linux-amd64/minio
-minio_data_dir: /home/minio/data/
-minio_config_dir: /home/minio/config/
-minio_bin: /usr/local/bin/minio
+
+# Cool thing that works with S3.
+use_minio: true
+minio_ssl: true
 minio_access_key: 
 minio_secret_key: 
-minio_listen: 127.0.0.1:9000
+minio_bucket: assets
 
 
 
@@ -78,6 +81,14 @@ certbot_challenges_config: |
   location ^~ /.well-known/acme-challenge/ {
       root {{certbot_challenges_dir}};
   }
+certbot_admin_email: "root@{{domain}}"
 certbot_domains:
 
+
+minio_dl_url: https://dl.minio.io/server/minio/release/linux-amd64/minio
+minio_data_dir: /home/minio/data/
+minio_config_dir: /home/minio/config/
+minio_bin: /usr/local/bin/minio
+minio_listen: 127.0.0.1:9000
+minio_public_host: "{{minio_bucket}}.{{domain}}"
 

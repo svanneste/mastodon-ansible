@@ -12,17 +12,10 @@
     repo: https://github.com/tootsuite/mastodon.git
     dest: /home/mastodon/live
     update: yes
-    version: 470eb0042ea99e0632ccc62a0b7c01e910f70491
+    version: v1.1.1
   become: yes
   become_user: mastodon
   notify: restart all
-
-- name: quick fix please ignore
-  lineinfile:
-    dest: /home/mastodon/live/config/database.yml
-    insertafter: '^  port: '
-    line: '  prepared_statements: false'
-  when: pgbouncer_use
 
 - name: gem install
   gem:
@@ -74,7 +67,7 @@
   tags: [app]
 
 - include: shared-media.yml
-  when: "'web' in mroles_enabled"
+  when: use_nfs_media
 
 - name: install systemd units
   template: src=mastodon-{{item}}.service dest=/etc/systemd/system/mastodon-{{item}}.service
